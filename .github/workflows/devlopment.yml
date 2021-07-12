@@ -1,0 +1,63 @@
+on: [workflow_dispatch]
+
+env:
+  REPO: ${{ github.event.repository.name }}
+
+jobs:
+  my_job:
+    runs-on: ubuntu-latest
+    container:
+      image: lasery/ride
+      options: >-
+        -v "/home/runner/work/templates/templates":"/home/ride/projects/templates"
+        -e HOST_NAME=${{ github.event.repository.name }}
+        -e HOST_DOCKER_ID=121
+        -e HOST_USER_NAME=root
+        -e HOST_USER_ID=0
+        -e HOST_USER_GID=0
+        --privileged
+
+    steps:
+      -
+        name: Checkout repository and submodules
+        uses: actions/checkout@v2
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: "Debug:Cache tmp directory"
+        id: cache-tmp
+        uses: actions/cache@v2
+        with:
+          path: .tmp
+          key: cache-tmp-${{ github.sha }}
+          restore-keys: cache-tmp-
+      -
+        name: "Debug: let ride own repo"
+        run: chown -R ride:ride $GITHUB_WORKSPACE
+      -
+        name: "Debug: symlink"
+        run: |
+          ln -sf $GITHUB_WORKSPACE/.tmp/.kr /home/ride/
+          ln -sf /github/home/.docker /home/ride/
+      # -
+        # name: "Debug: patch root for ssh"
+        # run: |
+          # ln -sf $GITHUB_WORKSPACE/.tmp/.kr /root/
+          # mkdir -p /root/.ssh
+          # cp /home/ride/.ssh/config /root/.ssh/config
+      -
+        name: "Debug: run sshme"
+        env:
+          HOME: /home/ride
+        working-directory: /home/ride/projects
+        run: /docker-entrypoint.sh ride sshme || true
