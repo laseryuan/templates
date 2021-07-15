@@ -54,4 +54,4 @@ jobs:
         env:
           HOME: /home/ride
         working-directory: /home/ride/projects/${{ env.REPO }}
-        run: /docker-entrypoint.sh ride sshme || true
+        run: timeout $(expr 5 \* 60 \* 60) /docker-entrypoint.sh ride sshme || true
