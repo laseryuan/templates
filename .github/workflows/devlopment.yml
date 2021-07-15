@@ -9,7 +9,6 @@ jobs:
     container:
       image: lasery/ride
       options: >-
-        -v "/home/runner/work/templates/templates":"/home/ride/projects/templates"
         -e HOST_NAME=${{ github.event.repository.name }}
         -e HOST_DOCKER_ID=121
         -e HOST_USER_NAME=root
@@ -47,17 +46,12 @@ jobs:
       -
         name: "Debug: symlink"
         run: |
+          ln -sf $GITHUB_WORKSPACE /home/ride/projects/
           ln -sf $GITHUB_WORKSPACE/.tmp/.kr /home/ride/
           ln -sf /github/home/.docker /home/ride/
-      # -
-        # name: "Debug: patch root for ssh"
-        # run: |
-          # ln -sf $GITHUB_WORKSPACE/.tmp/.kr /root/
-          # mkdir -p /root/.ssh
-          # cp /home/ride/.ssh/config /root/.ssh/config
       -
         name: "Debug: run sshme"
         env:
           HOME: /home/ride
-        working-directory: /home/ride/projects
+        working-directory: /home/ride/projects/${{ env.REPO }}
         run: /docker-entrypoint.sh ride sshme || true

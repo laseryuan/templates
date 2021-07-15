@@ -1,9 +1,8 @@
 on:
   push:
-    paths:
-      - 'vendors/shooter/**'
     paths-ignore:
-          - '.github/**'
+      - '.github/**'
+      - 'vendors/shooter/**'
 
 env:
   REPO: ${{ github.event.repository.name }}
