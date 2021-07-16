@@ -33,12 +33,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
+        name: Generate random cache key to ensure the cach directories are saved after build
+        run: echo "RANDOM=$(xxd -l 16 -c 32 -p < /dev/random)" >> $GITHUB_ENV
+      -
         name: "Debug:Cache tmp directory"
         id: cache-tmp
         uses: actions/cache@v2
         with:
           path: .tmp
-          key: cache-tmp-${{ github.sha }}
+          key: cache-tmp-${{ env.RANDOM }}
           restore-keys: cache-tmp-
       -
         name: "Debug: let ride own repo"
