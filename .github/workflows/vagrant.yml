@@ -1,0 +1,42 @@
+# https://github.com/dakotaKat/fastmac-VNCgui
+on:
+  workflow_dispatch:
+
+env:
+  REPO: ${{ github.event.repository.name }}
+  VNC_RESOLUTION: 600x1165
+  VNC_PASSWORD: github
+  VNC_DISPLAY: ":1"
+
+jobs:
+  vagrant-up:
+    # if: ${{ false }}
+    runs-on: macos-10.15
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache Vagrant boxes
+      uses: actions/cache@v2
+      with:
+        path: ~/.vagrant.d/boxes
+        key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+        restore-keys: |
+          ${{ runner.os }}-vagrant-
+    - name: Show Vagrant version
+      run: vagrant --version
+
+    - name: Run vagrant up
+      run: vagrant up
+
+    - name: ssh into box after boot
+      run: vagrant ssh -c "echo 'hello world!'"
+    - name: Setting the environment up.
+      env:
+        VNC_USER_PASSWORD: github
+        VNC_PASSWORD: github
+        # VNC_USER_PASSWORD: ${{ secrets.VNC_USER_PASSWORD }}
+        # VNC_PASSWORD: ${{ secrets.VNC_PASSWORD }}
+      run: source .github/workflows/vagrant/configure.sh "$VNC_USER_PASSWORD" "$VNC_PASSWORD" "$NGROK_AUTH_TOKEN"
+    - name: Expose vnc port 
+      run: ssh -o StrictHostKeyChecking=no -p 2222 -R 33360:127.0.0.1:5900 sish.unsown.top || true

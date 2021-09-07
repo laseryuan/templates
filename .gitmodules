@@ -1,0 +1,3 @@
+[submodule "vendors/shooter/src"]
+	path = vendors/shooter/fork
+	url = https://github.com/lopkn/shooter

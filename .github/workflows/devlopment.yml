@@ -1,0 +1,105 @@
+on:
+  workflow_dispatch:
+    inputs:
+      options:
+        description: 'Options'     
+        required: false
+
+env:
+  REPO: ${{ github.event.repository.name }}
+  ENABLE_GCLOUD: ${{ contains(github.event.inputs.options, 'ci gcloud') || contains(github.event.head_commit.message, 'ci gcloud') }}
+  ENABLE_DESKTOP: true
+  ENABLE_DEBUG: true
+  RESOLUTION: 600x1165
+
+jobs:
+  dev_job:
+    runs-on: ubuntu-latest
+    container:
+      image: lasery/ride
+      options: >-
+        -v "${{ github.workspace }}":"/home/ride/projects/${{ github.event.repository.name }}"
+        -v /tmp/.X11-unix:/tmp/.X11-unix
+        -e DISPLAY="unix:1"
+        -e HOST_NAME=${{ github.event.repository.name }}
+        -e HOST_pwd=${{ github.workspace }}
+        -e HOST_DOCKER_ID=121
+        -e HOST_USER_NAME=root
+        -e HOST_USER_ID=0
+        -e HOST_USER_GID=0
+        --privileged
+
+    steps:
+      -
+        name: Set ENV
+        run: | 
+          echo "DOCKER_NETWORK=${{ job.container.network }}" >> $GITHUB_ENV
+      -
+        name: Checkout repository and submodules
+        uses: actions/checkout@v2
+      -
+        name: Change git url to ssh style
+        run: git remote set-url origin git@github.com:${{ github.repository }}.git
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: "gcloud (optional): Setup Cloud SDK"
+        if: env.ENABLE_GCLOUD == 'true'
+        uses: google-github-actions/setup-gcloud@v0.2.0
+      -
+        name: "debug (optional): Generate random cache key to ensure the cach directories are saved after build"
+        if: env.ENABLE_DEBUG == 'true'
+        run: echo "RANDOM=$(xxd -l 16 -c 32 -p < /dev/random)" >> $GITHUB_ENV
+      -
+        name: "debug (optional):Cache tmp directory"
+        if: env.ENABLE_DEBUG == 'true'
+        id: cache-tmp
+        uses: actions/cache@v2
+        with:
+          path: .tmp
+          key: cache-tmp-${{ env.RANDOM }}
+          restore-keys: cache-tmp-
+      -
+        name: "Workspace: symlink"
+        run: |
+          stow  -d $GITHUB_WORKSPACE/.tmp/.dotfiles -t /home/ride/ home || true
+          ln -sf /github/home/.docker /home/ride/
+      -
+        name: "Desktop: start container"
+        if: env.ENABLE_DESKTOP == 'true'
+        run: |
+          docker run \
+            -d --rm --name desktop \
+            --ipc=shareable \
+            --privileged \
+            -e DISPLAY=unix:1 \
+            -e VNC_PASSWORD=${{ secrets.VNC_PASSWORD }} \
+            -e RESOLUTION \
+            --network $DOCKER_NETWORK \
+            -v /tmp/.X11-unix:/tmp/.X11-unix \
+            lasery/vnc-desktop
+      -
+        name: "debug (optional): Setup environment"
+        if: env.ENABLE_DEBUG == 'true'
+        run: |
+          $GITHUB_WORKSPACE/.tmp/setup.sh || true
+      -
+        name: "debug (optional): run sshme"
+        if: env.ENABLE_DEBUG == 'true'
+        env:
+          HOME: /home/ride
+          DISPLAY: unix:1
+        working-directory: /home/ride/projects/${{ env.REPO }}
+        run: |
+          # \cp -f .tmux.conf ~/.tmux.conf
+          timeout $(expr 5 \* 60 \* 60) /docker-entrypoint.sh ride sshme $REPO || true
