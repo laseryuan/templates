@@ -101,5 +101,4 @@ jobs:
           DISPLAY: unix:1
         working-directory: /home/ride/projects/${{ env.REPO }}
         run: |
-          # \cp -f .tmux.conf ~/.tmux.conf
           timeout $(expr 5 \* 60 \* 60) /docker-entrypoint.sh ride sshme $REPO || true
