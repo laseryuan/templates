@@ -1,13 +1,13 @@
 on:
   workflow_dispatch:
-    inputs:
-      options:
-        description: 'Options'     
-        required: false
+    # inputs:
+      # options:
+        # description: 'Options'     
+        # required: false
 
 env:
   REPO: ${{ github.event.repository.name }}
-  ENABLE_GCLOUD: ${{ contains(github.event.inputs.options, 'ci gcloud') || contains(github.event.head_commit.message, 'ci gcloud') }}
+  # ENABLE_GCLOUD: ${{ contains(github.event.inputs.options, 'ci gcloud') || contains(github.event.head_commit.message, 'ci gcloud') }}
   ENABLE_DESKTOP: true
   ENABLE_DEBUG: true
   RESOLUTION: 600x1165
@@ -52,10 +52,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: "gcloud (optional): Setup Cloud SDK"
-        if: env.ENABLE_GCLOUD == 'true'
-        uses: google-github-actions/setup-gcloud@v0.2.0
+      # -
+        # name: "gcloud (optional): Setup Cloud SDK"
+        # if: env.ENABLE_GCLOUD == 'true'
+        # uses: google-github-actions/setup-gcloud@v0.2.0
       -
         name: "debug (optional): Generate random cache key to ensure the cach directories are saved after build"
         if: env.ENABLE_DEBUG == 'true'
