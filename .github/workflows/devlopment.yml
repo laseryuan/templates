@@ -23,6 +23,7 @@ jobs:
         -e DISPLAY="unix:1"
         -e HOST_NAME=${{ github.event.repository.name }}
         -e HOST_pwd=${{ github.workspace }}
+        -e HOST_HOME=${{ github.workspace }}/.tmp/.dotfiles/home
         -e HOST_DOCKER_ID=121
         -e HOST_USER_NAME=root
         -e HOST_USER_ID=0
