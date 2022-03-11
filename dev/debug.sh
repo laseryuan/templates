@@ -18,3 +18,13 @@ fusermount -u ~/projects/sshfs
   --add-host "docker0:$(ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')" \
 
 ping docker0
+
+# Use this project with github action
+```
+cd .tmp
+ssh -T git@github.com
+mkdir -p .dotfiles/home/.kr
+vi .dotfiles/home/.kr/pairing.json
+killall ssh
+```
+
