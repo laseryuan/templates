@@ -34,7 +34,7 @@ jobs:
       -
         name: Set ENV
         run: | 
-          echo "DOCKER_NETWORK=${{ job.container.network }}" >> $GITHUB_ENV
+          echo "RIDE_NETWORK=${{ job.container.network }}" >> $GITHUB_ENV
       -
         name: Checkout repository and submodules
         uses: actions/checkout@v2
@@ -86,7 +86,7 @@ jobs:
             -e DISPLAY=unix:1 \
             -e VNC_PASSWORD=${{ secrets.VNC_PASSWORD }} \
             -e RESOLUTION \
-            --network $DOCKER_NETWORK \
+            --network $RIDE_NETWORK \
             -v /tmp/.X11-unix:/tmp/.X11-unix \
             lasery/vnc-desktop
       -
