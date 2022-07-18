@@ -15,6 +15,8 @@ RUN apt-get install -qy \
       && rm -rf /var/lib/apt/lists/*
       git \
       gpg \
+      `# download` \
+      curl \
       `# build support` \
       build-essential \
       ca-certificates \
@@ -62,6 +64,11 @@ RUN pip3 install --upgrade setuptools pip
 
 RUN pip install {pip_package}
 
+## Install deb package
+RUN curl -L https://github.com/account/repo/releases/download/v1.6.3/pkg.deb -o /tmp/pkg.deb && \
+  dpkg -i /tmp/pkg.deb && \
+  rm /tmp/pkg.deb
+
 ## Download repo
 ENV repo_version="1.0.2"
 RUN git clone --depth 1 --branch ${repo_version} https://github.com/Genymobile/scrcpy
@@ -76,7 +83,7 @@ RUN mv /tmp/repo-master /tmp/repo
 
 WORKDIR /tmp/repo
 
-# Contional run
+# Conditional run
 ARG {turn_on}
 RUN if [ "$turn_on" = "true"  ] ; then \
       {do_something}
