@@ -59,23 +59,36 @@ export PULSE_SERVER=/run/pulse/native
 xhost +SI:localuser:$(id -nu 1000) # if current user id is not 1000
 ```
 
+## config
 ```
   -v app-config:/home/app/.config \
-  \
-  `# graphic` \
+```
+
+## docker
+```
+  -v "$(command -v docker):/usr/bin/docker" \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+```
+
+## graphic
+```
   -e DISPLAY=unix:0 \
   -e DISPLAY=unix:1 `# vnc`\
   -e DISPLAY \
   -v /tmp/.X11-unix:/tmp/.X11-unix `# container user need to have same uid as host user and be in video group` \
   --privileged --device=/dev/dri \
   --net=host -v ~/.Xauthority:/home/app/.Xauthority:ro `don't use this method if not neccessary` \
-  \
-  # https://github.com/mviereck/x11docker/wiki/Container-sound:-ALSA-or-Pulseaudio
-  `# sound` \
+```
+
+## sound
+https://github.com/mviereck/x11docker/wiki/Container-sound:-ALSA-or-Pulseaudio
+```
   -e PULSE_SERVER=unix:/run/user/1000/pulse/native -v /run/user/1000/pulse:/run/user/1000/pulse \
   --device /dev/snd `# for alsa`\
-  \
-  `# memory` \
+```
+
+## memory
+```
   --tmpfs /tmp/ \
   --device /dev/input:/dev/input `# input device` \
   -v /etc/localtime:/etc/localtime:ro \
@@ -83,8 +96,10 @@ xhost +SI:localuser:$(id -nu 1000) # if current user id is not 1000
   -v /var/run/dbus/:/var/run/dbus/ \
   --group-add video \
   --privileged \
-  \
-  `# Raspberry pi specific` \
+```
+
+## Raspberry pi specific
+```
   -v /opt/vc:/opt/vc `# ARM side code to interface to: EGL, mmal, GLESv2, vcos, openmaxil, vchiq_arm, bcm_host, WFC, OpenVG`\
   --device /dev/vchiq `# camera to gpu interface` \
   --device /dev/ttyAMA0 `# serial ports, bluetooth` \
