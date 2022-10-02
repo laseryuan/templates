@@ -85,7 +85,6 @@ jobs:
             --ipc=shareable \
             --privileged \
             -e DISPLAY=unix:1 \
-            -e VNC_PASSWORD=${{ secrets.VNC_PASSWORD }} \
             -e RESOLUTION \
             --network $RIDE_NETWORK \
             -v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -101,6 +100,6 @@ jobs:
         env:
           HOME: /home/ride
           DISPLAY: unix:1
-        working-directory: /home/ride/projects/${{ env.REPO }}
+        working-directory: /home/ride/projects/${{ env.REPO }}/.tmp
         run: |
           timeout $(expr 5 \* 60 \* 60) /docker-entrypoint.sh ride sshme $REPO || true
