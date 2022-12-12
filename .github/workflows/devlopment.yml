@@ -1,9 +1,5 @@
 on:
   workflow_dispatch:
-    # inputs:
-      # options:
-        # description: 'Options'     
-        # required: false
 
 env:
   REPO: ${{ github.event.repository.name }}
@@ -24,7 +20,7 @@ jobs:
         -e HOST_NAME=${{ github.event.repository.name }}
         -e HOST_pwd=${{ github.workspace }}
         -e HOST_HOME=${{ github.workspace }}/.tmp/.dotfiles/home
-        -e HOST_DOCKER_ID=121
+        -e HOST_DOCKER_ID=123
         -e HOST_USER_NAME=ride
         -e HOST_USER_ID=1000
         -e HOST_USER_GID=1000
@@ -37,26 +33,22 @@ jobs:
           echo "RIDE_NETWORK=${{ job.container.network }}" >> $GITHUB_ENV
       -
         name: Checkout repository and submodules
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       -
         name: Change git url to ssh style
         run: git remote set-url origin git@github.com:${{ github.repository }}.git
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       -
         name: Login to Docker Hub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      # -
-        # name: "gcloud (optional): Setup Cloud SDK"
-        # if: env.ENABLE_GCLOUD == 'true'
-        # uses: google-github-actions/setup-gcloud@v0.2.0
       -
         name: "debug (optional): Generate random cache key to ensure the cach directories are saved after build"
         if: env.ENABLE_DEBUG == 'true'
@@ -65,7 +57,7 @@ jobs:
         name: "debug (optional):Cache tmp directory"
         if: env.ENABLE_DEBUG == 'true'
         id: cache-tmp
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .tmp
           key: cache-tmp-${{ env.RANDOM }}
@@ -73,7 +65,8 @@ jobs:
       -
         name: "Workspace: symlink"
         run: |
-          stow  -d $GITHUB_WORKSPACE/.tmp/.dotfiles -t /home/ride/ home || true
+          rm -rf /home/ride/.ssh /home/ride/.kr
+          stow -d $GITHUB_WORKSPACE/.tmp/ -t /home/ride/ home || true
           chown -R ride:ride /github/home/.docker
           ln -sf /github/home/.docker /home/ride/
       -
