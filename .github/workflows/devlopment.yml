@@ -66,7 +66,17 @@ jobs:
         name: "Workspace: symlink"
         run: |
           rm -rf /home/ride/.ssh /home/ride/.kr
+          if [ ! -d "$GITHUB_WORKSPACE/.tmp/home" ]]; then
+            mkdir -p $GITHUB_WORKSPACE/.tmp/home/.ssh
+            mkdir -p $GITHUB_WORKSPACE/.tmp/home/.kr
+            cp /home/ride/.dotfiles/ssh/config $GITHUB_WORKSPACE/.tmp/home/.ssh/
+            cp /home/ride/.dotfiles/ssh/pairing.json $GITHUB_WORKSPACE/.tmp/home/.kr/
+            chown -R ride:ride $GITHUB_WORKSPACE/.tmp/home
+          fi
           stow -d $GITHUB_WORKSPACE/.tmp/ -t /home/ride/ home || true
+      -
+        name: "Enable docker"
+        run: |
           chown -R ride:ride /github/home/.docker
           ln -sf /github/home/.docker /home/ride/
       -
