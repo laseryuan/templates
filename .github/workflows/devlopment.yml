@@ -35,9 +35,6 @@ jobs:
         name: Checkout repository and submodules
         uses: actions/checkout@v3
       -
-        name: Change git url to ssh style
-        run: git remote set-url origin git@github.com:${{ github.repository }}.git
-      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       -
