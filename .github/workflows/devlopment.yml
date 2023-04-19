@@ -4,9 +4,9 @@ on:
 env:
   REPO: ${{ github.event.repository.name }}
   # ENABLE_GCLOUD: ${{ contains(github.event.inputs.options, 'ci gcloud') || contains(github.event.head_commit.message, 'ci gcloud') }}
-  ENABLE_DESKTOP: true
+  ENABLE_DESKTOP: false
   ENABLE_DEBUG: true
-  RESOLUTION: 600x1165
+  # RESOLUTION: 600x1165
 
 jobs:
   dev_job:
@@ -29,7 +29,7 @@ jobs:
     steps:
       -
         name: Set ENV
-        run: | 
+        run: |
           echo "RIDE_NETWORK=${{ job.container.network }}" >> $GITHUB_ENV
       -
         name: Checkout repository and submodules
@@ -84,7 +84,6 @@ jobs:
             -d --rm --name desktop \
             --ipc=shareable \
             --privileged \
-            -e DISPLAY=unix:1 \
             -e RESOLUTION \
             --network $RIDE_NETWORK \
             -v /tmp/.X11-unix:/tmp/.X11-unix \
