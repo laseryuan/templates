@@ -14,7 +14,7 @@ jobs:
     container:
       image: lasery/ride
       options: >-
-        -v "${{ github.workspace }}":"/home/ride/projects/${{ github.event.repository.name }}"
+        -v ${{ github.workspace }}:/home/ride/projects:rshared
         -v /tmp/.X11-unix:/tmp/.X11-unix
         -e DISPLAY="unix:1"
         -e HOST_NAME=${{ github.event.repository.name }}
@@ -99,6 +99,6 @@ jobs:
         env:
           HOME: /home/ride
           DISPLAY: unix:1
-        working-directory: /home/ride/projects/${{ env.REPO }}/.tmp
+        working-directory: /home/ride/projects/.tmp
         run: |
           timeout $(expr 5 \* 60 \* 60) /docker-entrypoint.sh ride sshme $REPO || true
