@@ -1,6 +1,8 @@
 Config() {
 . tmp/env.sh
 # . tmp/env.dev.sh
+
+echo $ENVIRONMENT_VARS
 # ENVIRONMENT_VARS=\
 }
 Config
@@ -26,10 +28,15 @@ docker run \
     bash
 }
 
+test(){
+# run in dev enviorment
+echo "test successfually"
+}
+
 # build images
 build() {
-# --bake-arg "--progress plain --set *.cache-from=lasery/ride:latest"
 python3 ~/mbuild/utils/build.py docker
+# --bake-arg "--progress plain --set *.cache-from=lasery/ride:latest"
 }
 
 # Run locally
