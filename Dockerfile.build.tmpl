@@ -100,9 +100,7 @@ USER app
 
 COPY --from builder /usr/bin/app /user/bin/
 
-COPY tmpl/ /etc/app/tmpl/
-COPY --chown=app ./docker-entrypoint.sh /
-COPY --chown=app ./app ./
+COPY --chown=app ./app /app
 COPY --chown=app ./README.md /
 
 # Configure
@@ -111,5 +109,5 @@ RUN mkdir -p .config/sub_folder
 COPY --chown=app config.sh /tmp/config.sh
 RUN bash /tmp/config.sh
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["help"]
