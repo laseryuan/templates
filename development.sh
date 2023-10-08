@@ -8,8 +8,8 @@ echo $ENVIRONMENT_VARS
 Config
 
 ## Setup the project
-Create_a_service_account() {
-gcloud iam service-accounts create
+Initiate_environment_file() {
+cp tmp/sample.env.sh tmp/env.sh
 }
 
 #Development environment with code updates
